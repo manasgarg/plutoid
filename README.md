@@ -5,7 +5,3 @@
 If you are building a programming education app that provides code execution capabilities, you'll find `plutoid` is a lightweight alternative to `ipython`.
 
 Unlike `ipython`, `plutoid` is a library module. It does not provide a shell or any IPC mechanisms. It's main purpose is to capture `stdout`, `stderr` and `matplotlib graphs` and route them using `blinker` signals. It needs to be embedded in an application to be useful.
-
-## TODO
-* Pass `global` parameter to `exec()`
-* Better formatting of stacktrace. Remove the top most frame from print.
