@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
 from blinker import signal
+import logging
+
+logger = logging.getLogger(__name__)
 
 class OutStream(object):
     def __init__(self, stream_name):

@@ -3,7 +3,7 @@
 from setuptools import setup
 
 setup( name="plutoid",
-    version = "0.1.0",
+    version = "0.1.2",
     description = "A light weight Python kernel",
     author = "Manas Garg",
     author_email = "manasgarg@gmail.com",

@@ -8,14 +8,17 @@ from random import randint
 import matplotlib
 from matplotlib.backends.backend_agg import new_figure_manager, FigureCanvasAgg # analysis: ignore
 from matplotlib._pylab_helpers import Gcf
-
 from blinker import signal
+import logging
+
+logger = logging.getLogger(__name__)
 
 def display(fig):
     kw = {'format': 'png', 'dpi': 300}
     bytes_io = BytesIO()
     fig.canvas.print_figure(bytes_io, **kw)
     
+    logger.debug('Publishing matplotlib image')
     s = signal('plutoid::matplotlib')
     s.send('plutoid', mimetype='image/png', content=bytes_io.getvalue())
 
