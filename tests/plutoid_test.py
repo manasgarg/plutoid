@@ -1,3 +1,6 @@
+import sys
+sys.path.append('..')
+
 from blinker import signal
 from plutoid.executor import Executor
 
@@ -97,3 +100,29 @@ print(s)
     e = Executor(input_cb)
     e.exec_code(code)
     assert collect_stdout() == 'xyz\n'
+
+
+def test_global_module():
+    code = '''
+import re
+
+REGEX_PATTERN = r'...'
+
+def is_star_wars_movie( movie_name):
+    m = re.search(REGEX_PATTERN, movie_name)
+    if m:
+        return True
+    else:
+        return False
+
+print( is_star_wars_movie('Star Wars: The Last Jedi') )
+'''
+
+    e = Executor()
+    e.exec_code(code)
+    err = collect_stderr()
+    print(err)
+
+    out = collect_stdout()
+    print(out)
+    assert collect_stdout() == 'True\n'

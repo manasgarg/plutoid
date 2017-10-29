@@ -21,10 +21,10 @@ class ExecutionTimeMonitor(object):
     def __init__(self, max_code_execution_time):
         self.max_code_execution_time = max_code_execution_time
 
-        blinker_signal('plutoidkernel::code_execution_start').connect(self.code_execution_start)
-        blinker_signal('plutoidkernel::code_execution_pause').connect(self.code_execution_pause)
-        blinker_signal('plutoidkernel::code_execution_resume').connect(self.code_execution_resume)
-        blinker_signal('plutoidkernel::code_execution_end').connect(self.code_execution_end)
+        blinker_signal('plutoid::code_execution_start').connect(self.code_execution_start)
+        blinker_signal('plutoid::code_execution_pause').connect(self.code_execution_pause)
+        blinker_signal('plutoid::code_execution_resume').connect(self.code_execution_resume)
+        blinker_signal('plutoid::code_execution_end').connect(self.code_execution_end)
 
         self.start_time = 0
         self.remaining_code_execution_time = self.max_code_execution_time

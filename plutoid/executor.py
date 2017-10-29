@@ -38,28 +38,45 @@ class Executor(object):
 
 
     def input_trap(self, prompt):
-        signal('plutoidkernel::code_execution_pause').send('plutoid')
+        signal('plutoid::code_execution_pause').send('plutoid')
 
         self.input_cb(prompt)
 
-        signal('plutoidkernel::code_execution_resume').send('plutoid')
+        signal('plutoid::code_execution_resume').send('plutoid')
 
 
-
-    def exec_code(self, code):
+    def exec_code(self, code, tests=[]):
         self.prepare_env()
-        signal('plutoidkernel::code_execution_start').send('plutoid')
+        signal('plutoid::code_execution_start').send('plutoid')
+
+        has_error = False
 
         try:
             ast = compile(code, 'your-code', 'exec')
-            exec(ast, self.globals, self.locals)
+            exec(ast, self.globals)
+
+            for test in tests:
+                result='ok'
+                ast = compile( test, 'tests', 'exec')
+
+                try:
+                    exec( ast, self.globals)
+                except AssertionError:
+                    result='not-ok'
+
+                signal('plutoid::test_result').send('plutoid', content=test, result=result)
+
         except CodeExecutionTimeExceeded:
+            has_error = True
             sys.stderr.write('Code is executing for too long (>%d secs). Quota over.\n' % self.max_code_execution_time)
         except:
+            has_error = True
             self.print_exception()
         finally:
             self.revert_env()
-            signal('plutoidkernel::code_execution_end').send('plutoid')
+            signal('plutoid::code_execution_end').send('plutoid')
+
+        return has_error
 
 
     def print_exception(self):
