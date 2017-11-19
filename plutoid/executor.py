@@ -15,14 +15,12 @@ from io import StringIO
 from blinker import signal
 
 from .stream import OutStream
-from .monitor import ExecutionTimeMonitor, CodeExecutionTimeExceeded
 
 logger = logging.getLogger(__name__)
 
 class Executor(object):
-    def __init__(self, input_cb=None, max_code_execution_time=0):
+    def __init__(self, input_cb=None):
         self.input_cb = input_cb
-        self.max_code_execution_time = max_code_execution_time
 
         self.globals = {}
         self.locals = {}
@@ -32,9 +30,6 @@ class Executor(object):
         self.orig_env["stderr"] = sys.stderr
         self.orig_env["stdin"] = sys.stdin
         self.orig_env["input"] = builtins.input
-
-        if max_code_execution_time:
-            self.execution_time_monitor = ExecutionTimeMonitor(max_code_execution_time)
 
 
     def input_trap(self, prompt):
@@ -49,7 +44,7 @@ class Executor(object):
         self.prepare_env()
         signal('plutoid::code_execution_start').send('plutoid')
 
-        has_error = False
+        exc = None
 
         try:
             ast = compile(code, 'your-code', 'exec')
@@ -66,17 +61,14 @@ class Executor(object):
 
                 signal('plutoid::test_result').send('plutoid', content=test, result=result)
 
-        except CodeExecutionTimeExceeded:
-            has_error = True
-            sys.stderr.write('Code is executing for too long (>%d secs). Quota over.\n' % self.max_code_execution_time)
-        except:
-            has_error = True
+        except Exception as e:
             self.print_exception()
+            exc = e
         finally:
             self.revert_env()
             signal('plutoid::code_execution_end').send('plutoid')
 
-        return has_error
+        return exc
 
 
     def print_exception(self):
