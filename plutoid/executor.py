@@ -6,7 +6,7 @@ os.environ['MPLBACKEND'] = 'module://plutoid.matplotlib_backend'
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
-
+import ast
 import sys
 import builtins
 import logging
@@ -47,15 +47,17 @@ class Executor(object):
         exc = None
 
         try:
-            ast = compile(code, 'your-code', 'exec')
-            exec(ast, self.globals)
+            code_obj = compile(code, 'your-code', 'exec', ast.PyCF_ONLY_AST, 1)
+            for node in code_obj.body:
+                single_code_obj = compile(ast.Interactive([node]), 'your-code', 'single')
+                exec(single_code_obj, self.globals)
 
             for test in tests:
                 result='ok'
-                ast = compile( test, 'tests', 'exec')
+                test_code_obj = compile( test, 'tests', 'exec')
 
                 try:
-                    exec( ast, self.globals)
+                    exec( test_code_obj, self.globals)
                 except AssertionError:
                     result='not-ok'
 
